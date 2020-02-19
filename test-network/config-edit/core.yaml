@@ -522,7 +522,7 @@ chaincode:
     # chaincode. The external builder detection processing will iterate over the
     # builders in the order specified below.
     externalBuilders:
-        - path: /etc/hyperledger/external-launcher
+        - path: /etc/hyperledger/external-builder
           name: my-golang-builder
           environmentWhitelist:
             - GOPROXY
