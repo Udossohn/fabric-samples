@@ -1,5 +1,16 @@
 [//]: # (SPDX-License-Identifier: CC-BY-4.0)
 
+
+## Hyperledger Fabric Samples Fork to test External Chaincode Builder and Launcher
+Please visit my articel on medium for information about how to set up the external chaincode builder and launcher by your own. 
+https://medium.com/@robinklemens/setting-up-the-external-chaincode-builder-and-launcher-in-hyperledger-fabric-2-0-b17f43a3d8ed
+
+
+
+
+
+
+
 ## Hyperledger Fabric Samples
 
 Please visit the [installation instructions](http://hyperledger-fabric.readthedocs.io/en/latest/install.html)
