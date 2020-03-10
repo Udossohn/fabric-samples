@@ -4,12 +4,14 @@ CC_RUNTIME_LANGUAGE="$2"
 VERSION="$3"
 DELAY="$4"
 MAX_RETRY="$5"
-VERBOSE="$6"
+SEQUENCE=${VERSION}
+VERBOSE="$7"
 : ${CHANNEL_NAME:="mychannel"}
 : ${CC_RUNTIME_LANGUAGE:="golang"}
-: ${VERSION:="1"}
+: ${VERSION:="1.0"}
 : ${DELAY:="3"}
 : ${MAX_RETRY:="5"}
+: ${SEQUENCE:="1"}
 : ${VERBOSE:="false"}
 CC_RUNTIME_LANGUAGE=`echo "$CC_RUNTIME_LANGUAGE" | tr [:upper:] [:lower:]`
 
@@ -99,11 +101,11 @@ approveForMyOrg() {
 
   if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ] ; then
     set -x
-    peer lifecycle chaincode approveformyorg -o localhost:7050 --channelID $CHANNEL_NAME --name fabcar --version ${VERSION} --init-required --package-id ${PACKAGE_ID} --sequence ${VERSION} --waitForEvent >&log.txt
+    peer lifecycle chaincode approveformyorg -o localhost:7050 --channelID $CHANNEL_NAME --name fabcar --version ${VERSION} --init-required --package-id ${PACKAGE_ID} --sequence ${SEQUENCE} --waitForEvent >&log.txt
     set +x
   else
     set -x
-    peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name fabcar --version ${VERSION} --init-required --package-id ${PACKAGE_ID} --sequence ${VERSION} >&log.txt
+    peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name fabcar --version ${VERSION} --init-required --package-id ${PACKAGE_ID} --sequence ${SEQUENCE} >&log.txt
     set +x
   fi
   cat log.txt
@@ -126,7 +128,7 @@ checkCommitReadiness() {
     sleep $DELAY
     echo "Attempting to check the commit readiness of the chaincode definition on peer0.org${ORG} secs"
     set -x
-    peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name fabcar $PEER_CONN_PARMS --version ${VERSION} --sequence ${VERSION} --output json --init-required >&log.txt
+    peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name fabcar $PEER_CONN_PARMS --version ${VERSION} --sequence ${SEQUENCE} --output json --init-required >&log.txt
     res=$?
     set +x
 		#test $res -eq 0 || continue
@@ -159,12 +161,12 @@ commitChaincodeDefinition() {
   # it using the "-o" option
   if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ] ; then
     set -x
-    peer lifecycle chaincode commit -o localhost:7050 --channelID $CHANNEL_NAME --name fabcar $PEER_CONN_PARMS --version ${VERSION} --sequence ${VERSION} --init-required >&log.txt
+    peer lifecycle chaincode commit -o localhost:7050 --channelID $CHANNEL_NAME --name fabcar $PEER_CONN_PARMS --version ${VERSION} --sequence ${SEQUENCE} --init-required >&log.txt
     res=$?
     set +x
   else
     set -x
-    peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name fabcar $PEER_CONN_PARMS --version ${VERSION} --sequence ${VERSION} --init-required >&log.txt
+    peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name fabcar $PEER_CONN_PARMS --version ${VERSION} --sequence ${SEQUENCE} --init-required >&log.txt
     res=$?
     set +x
   fi
@@ -178,7 +180,7 @@ commitChaincodeDefinition() {
 queryCommitted() {
   ORG=$1
   setGlobals $ORG
-  EXPECTED_RESULT="Version: ${VERSION}, Sequence: ${VERSION}, Endorsement Plugin: escc, Validation Plugin: vscc"
+  EXPECTED_RESULT="Version: ${VERSION}, Sequence: ${SEQUENCE}, Endorsement Plugin: escc, Validation Plugin: vscc"
   echo "===================== Querying chaincode definition on peer0.org${ORG} on channel '$CHANNEL_NAME'... ===================== "
 	local rc=1
 	local COUNTER=1

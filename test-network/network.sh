@@ -25,6 +25,7 @@ function printHelp() {
   echo "      - 'up createChannel' - bring up fabric network with one channel"
   echo "      - 'createChannel' - create and join a channel after the network is created"
   echo "      - 'deployCC' - deploy the fabcar chaincode on the channel"
+  echo "      - 'upgradeCC' - upgrade the fabcar chaincode on the channel"
   echo "      - 'down' - clear the network with docker-compose down"
   echo "      - 'restart' - restart the network"
   echo
@@ -44,7 +45,8 @@ function printHelp() {
   echo "  network.sh up -ca -c -r -d -s -i -verbose"
   echo "  network.sh up createChannel -ca -c -r -d -s -i -verbose"
   echo "  network.sh createChannel -c -r -d -verbose"
-  echo "  network.sh deployCC -l -v -r -d -verbose"
+  echo "  network.sh deployCC -l -v -r -d -s -verbose"
+  echo "  network.sh upgradeCC -l -v -r -d -verbose"
   echo
   echo " Taking all defaults:"
   echo "	network.sh up"
@@ -53,6 +55,7 @@ function printHelp() {
   echo "  network.sh up createChannel -ca -c mychannel -s couchdb -i 2.0.0-beta"
   echo "  network.sh createChannel -c channelName"
   echo "  network.sh deployCC -l javascript"
+  echo "  network.sh upgradeCC -v 1.1"
 }
 
 # Obtain CONTAINER_IDS and remove them
@@ -370,7 +373,47 @@ function createChannel() {
 ## Call the script to isntall and instantiate a chaincode on the channel
 function deployCC() {
 
-  scripts/deployCC.sh $CHANNEL_NAME $CC_RUNTIME_LANGUAGE $VERSION $CLI_DELAY $MAX_RETRY $VERBOSE
+  scripts/deployCC.sh $CHANNEL_NAME $CC_RUNTIME_LANGUAGE $VERSION $CLI_DELAY $MAX_RETRY $SEQUENCE $VERBOSE
+
+  if [ $? -ne 0 ]; then
+    echo "ERROR !!! Deploying chaincode failed"
+    exit 1
+  fi
+
+  exit 0
+}
+
+## Call the script to isntall and instantiate a chaincode on the channel
+function deployCC-fabcar2() {
+
+  scripts/deployCC-fabcar2.sh $CHANNEL_NAME $CC_RUNTIME_LANGUAGE $VERSION $CLI_DELAY $MAX_RETRY $SEQUENCE $VERBOSE
+
+  if [ $? -ne 0 ]; then
+    echo "ERROR !!! Deploying chaincode failed"
+    exit 1
+  fi
+
+  exit 0
+}
+
+## Call the script to isntall and instantiate a chaincode on the channel
+function deployCC-abstore() {
+
+  scripts/deployCC-abstore.sh $CHANNEL_NAME $CC_RUNTIME_LANGUAGE $VERSION $CLI_DELAY $MAX_RETRY $SEQUENCE $VERBOSE
+
+  if [ $? -ne 0 ]; then
+    echo "ERROR !!! Deploying chaincode failed"
+    exit 1
+  fi
+
+  exit 0
+}
+
+
+## Call the script to isntall and instantiate a chaincode on the channel
+function upgradeCC() {
+
+  scripts/upgradeCC.sh $CHANNEL_NAME $CC_RUNTIME_LANGUAGE $VERSION $CLI_DELAY $MAX_RETRY $VERBOSE
 
   if [ $? -ne 0 ]; then
     echo "ERROR !!! Deploying chaincode failed"
@@ -542,6 +585,15 @@ elif [ "$MODE" == "restart" ]; then
 elif [ "$MODE" == "deployCC" ]; then
   echo "deploying chaincode on channel '${CHANNEL_NAME}'"
   echo
+elif [ "$MODE" == "deployCC-fabcar2" ]; then
+  echo "deploying chaincode on channel '${CHANNEL_NAME}'"
+  echo
+elif [ "$MODE" == "deployCC-abstore" ]; then
+  echo "deploying abstore chaincode on channel '${CHANNEL_NAME}'"
+  echo
+elif [ "$MODE" == "upgradeCC" ]; then
+  echo "upgrading chaincode on channel '${CHANNEL_NAME}'"
+  echo
 else
   printHelp
   exit 1
@@ -553,6 +605,12 @@ elif [ "${MODE}" == "createChannel" ]; then
   createChannel
 elif [ "${MODE}" == "deployCC" ]; then
   deployCC
+  elif [ "${MODE}" == "deployCC-fabcar2" ]; then
+  deployCC-fabcar2
+elif [ "${MODE}" == "deployCC-abstore" ]; then
+  deployCC-abstore
+elif [ "${MODE}" == "upgradeCC" ]; then
+  upgradeCC
 elif [ "${MODE}" == "down" ]; then
   networkDown
 elif [ "${MODE}" == "restart" ]; then
